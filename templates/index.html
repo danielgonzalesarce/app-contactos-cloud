@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contactos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #173526;
+            background: #eef8f1;
+        }
+
+        .contenedor {
+            width: min(1080px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .encabezado {
+            margin-bottom: 28px;
+        }
+
+        .encabezado h1 {
+            color: #0f5132;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.05;
+            margin-bottom: 10px;
+        }
+
+        .encabezado p {
+            color: #46725b;
+            font-size: 1.05rem;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid #cfe8d8;
+            border-radius: 8px;
+            box-shadow: 0 18px 45px rgba(20, 83, 45, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel h2 {
+            color: #146c43;
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+        }
+
+        .formulario {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .campo label {
+            display: block;
+            color: #315d46;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 7px;
+        }
+
+        .campo input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #b8dcc7;
+            border-radius: 8px;
+            color: #173526;
+            font-size: 1rem;
+            outline: none;
+            padding: 0 12px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .campo input:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.14);
+        }
+
+        .boton {
+            height: 44px;
+            border: 0;
+            border-radius: 8px;
+            background: #198754;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            padding: 0 18px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .boton:hover {
+            background: #146c43;
+            transform: translateY(-1px);
+        }
+
+        .boton-eliminar {
+            height: 36px;
+            background: #d9534f;
+            padding: 0 14px;
+        }
+
+        .boton-eliminar:hover {
+            background: #b83b37;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #dcefe3;
+        }
+
+        th {
+            color: #0f5132;
+            background: #e4f5ea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0;
+        }
+
+        td {
+            color: #244435;
+        }
+
+        tr:hover td {
+            background: #f7fcf9;
+        }
+
+        .id {
+            width: 72px;
+            color: #5d806d;
+            font-weight: 700;
+        }
+
+        .acciones {
+            width: 130px;
+            text-align: right;
+        }
+
+        .vacio {
+            color: #5d806d;
+            background: #f7fcf9;
+            border: 1px dashed #9fd0b4;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            .formulario {
+                grid-template-columns: 1fr;
+            }
+
+            .boton {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="contenedor">
+        <section class="encabezado">
+            <h1>Agenda de Contactos</h1>
+            <p>Gestiona nombres, telefonos y correos de manera simple.</p>
+        </section>
+
+        <section class="panel">
+            <h2>Agregar contacto</h2>
+            <form class="formulario" action="{{ url_for('agregar_contacto') }}" method="POST">
+                <div class="campo">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej. Ana Torres" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefono">Telefono</label>
+                    <input type="tel" id="telefono" name="telefono" placeholder="Ej. 987654321" required>
+                </div>
+
+                <div class="campo">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Ej. ana@email.com" required>
+                </div>
+
+                <button class="boton" type="submit">Agregar</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Lista de contactos</h2>
+
+            {% if contactos %}
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="id">ID</th>
+                                <th>Nombre</th>
+                                <th>Telefono</th>
+                                <th>Email</th>
+                                <th class="acciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                                <tr>
+                                    <td class="id">{{ contacto.id }}</td>
+                                    <td>{{ contacto.nombre }}</td>
+                                    <td>{{ contacto.telefono }}</td>
+                                    <td>{{ contacto.email }}</td>
+                                    <td class="acciones">
+                                        <form action="{{ url_for('eliminar_contacto', contacto_id=contacto.id) }}" method="POST">
+                                            <button class="boton boton-eliminar" type="submit">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="vacio">No hay contactos registrados.</div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
